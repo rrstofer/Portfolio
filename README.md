@@ -55,7 +55,7 @@ I presented our work at the Fall 2022 American Geophysical Union conference in C
 
 ### National Hate Crime Model
 
-**Overview:** **Overview:** During my undergraduate machine learning course, my partner and I were assigned the task of developing a machine learning model on a topic of our choice. We chose to create a model capable of classifying offenders' races based on data from hate crimes recorded by the FBI Crime Data Explorer from 2010 to 2019. To achieve this, we explored a range of machine learning models, including Random Forest, Naive-Bayes, Boosting, and Logistic Regression. We also created an HTML report that documented our thought processes, offering explanations for exploratory data analysis (EDA), data preprocessing, and model testing and evaluation.
+**Overview:** During my undergraduate machine learning course, my partner and I were assigned the task of developing a machine learning model on a topic of our choice. We chose to create a model capable of classifying offenders' races based on data from hate crimes recorded by the FBI Crime Data Explorer from 2010 to 2019. To achieve this, we explored a range of machine learning models, including Random Forest, Naive-Bayes, Boosting, and Logistic Regression. We also created an HTML report that documented our thought processes, offering explanations for exploratory data analysis (EDA), data preprocessing, and model testing and evaluation.
 
 Upon analyzing our results, a noteworthy pattern emerged: our Random Forest model exhibited exceptional accuracy when classifying White offenders but significantly higher errors when dealing with minority groups. This trend was consistent across all our models. The root cause lay in the imbalanced distribution of hate crime offender races, with over 75% being White offenders. Further investigation, including variance importance analysis, revealed that the description of the bias (the type of hate crime offense) held the most significant influence in determining a hate crime offender's race. Ultimately, our best-performing models were Random Forest and Boosting, both with an error rate of approximately 23%.
 
@@ -74,4 +74,3 @@ In conclusion, our project demonstrated that predicting an offender's race using
 
 [![Open Report](https://img.shields.io/badge/HTML-View_Report-green?logo=html5&logoColor=green)](/assets/img/hate_crime_report.html) [![Open Rmd](https://img.shields.io/badge/R-View_Report-green?logo=R&logoColor=green
 )](/assets/img/hate_crime_report.Rmd)
-
