@@ -1,4 +1,11 @@
 title: Ryan Stofer
 logo: assets/img/Profile_Picture_Circle.png
-#description: Insert text here
+description: >
+
+  <p align="center">
+  <a href="mailto:rrstofer@gmail.com">Email</a> |
+  <a href="https://www.linkedin.com/in/ryan-stofer/">LinkedIn</a> |
+  <a href="https://github.com/rrstofer">GitHub</a> 
+  </p>
+
 theme: jekyll-theme-minimal
