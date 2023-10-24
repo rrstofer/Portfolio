@@ -27,7 +27,7 @@ We divided our project into two teams, each focused on a specific aspect of mult
 
 **Team:** Aleksander Cichosz, Vardan Martirosyan, Teo Zeng, Ryan Stofer
 
-[![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/Portfolio/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)]([https://github.com/rrstofer/Portfolio/blob/main/assets/img/SLAC_Poster.pdf](https://github.com/dermen/resonet))
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)]([https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf](https://github.com/dermen/resonet))
 
 ___
 
@@ -51,4 +51,18 @@ I presented our work at the Fall 2022 American Geophysical Union conference in C
 
 **Team:** Anna Boser, Ryan Stofer
 
-[![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/Portfolio/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
+
+### National Hate Crime Model
+
+**Overview:** As part of my machine learning course for my undergrad, we were tasked with developing a machine learning model regarding any topic of choice. So, I collaborated with a partner to create a machine learning model that is able to classify the offender's race given all recorded hate crimes in 2010-2019 from the FBI Crime Data Explorer.
+
+We ran a variety of models inclduing Random Forest, Naive-Bayes, Boosting, and Logistic Regression in order to classify an offender's race. We created an HTML report that goes over our thought processes and shows line-by-line explanation for EDA, data-processing, and model testing and evaluation.
+
+[![Open Report](https://img.shields.io/badge/HTML-View_Report-green?logo=html5&logoColor=green)](/assets/img/hate_crime_report.html)
+[![Open Rmd](https://img.shields.io/badge/R-View_Report-green?logo=R&logoColor=green
+)](/assets/img/hate_crime_report.Rmd)
+
+**Team:** Mitchell Rapaport, Ryan Stofer
+
+[![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
