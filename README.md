@@ -8,7 +8,7 @@
 
 **Overview:** I led a collaborative research project with a graduate student where we trained a U-Net-based convolutional neural network (CNN) to improve the resolution of coarse remote sensing data by utilizing high-resolution RGB imagery. 
 
-To overcome the challenge of acquiring extensive ground truth data for CNN training, we introduced an innovative pre-training procedure. This method involved applying a randomized function to the RGB images, generating synthetic high-resolution data with varying relationships to the RGB bands. This allowed the model to learn from the abundant high-resolution RGB data before specializing in super resolution tasks. We compared our deep learning approach's effectiveness against a pixel-based statistical downscaling method and noticed a significant improvement of around 28% for its $R^2$ value. By using a deep learning model, we reduce the need for airborne ground truth data, providing a practical solution to enhance the resolution of coarse remote sensing data, especially when research demands exceed current resolution capabilities.
+To overcome the challenge of acquiring extensive ground truth data for CNN training, we introduced an innovative pre-training procedure. This method involved applying a randomized function to the RGB images, generating synthetic high-resolution data with varying relationships to the RGB bands. This allowed the model to learn from the abundant high-resolution RGB data before specializing in super resolution tasks. We compared our deep learning approach's effectiveness against a pixel-based statistical downscaling method and noticed a significant improvement of around 28% for its R^2 value. By using a deep learning model, we reduce the need for airborne ground truth data, providing a practical solution to enhance the resolution of coarse remote sensing data, especially when research demands exceed current resolution capabilities.
 
 I presented our work at the Fall 2022 American Geophysical Union conference in Chicago.
 
@@ -34,7 +34,8 @@ ___
 
 We divided our project into two teams, each focused on a specific aspect of multi-task learning model development. One team developed a CNN for classifying images as single- or multi-lattice while my team created a CNN to predict image resolution. Using a ResNet-based architecture, both teams achieved significant success in model performance. Our multi-lattice detection  CNN achieved 94% accuracy, and the resolution quantification CNN attained a 0.96 Pearson correlation value on simulated data, with high qualitative performance observed on experimental data. This project demonstrates the potential of deep learning in addressing the data rate challenge in protein crystallography.
 
-![Capstone_Poster](/assets/img/SLAC_Poster.png)
+![Capstone_Poster](/assets/img/SLAC_1.png)
+![Capstone_Poster](/assets/img/SLAC_2.png)
 
 **Improvements:** We would like to extend our work further by testing our model on more real user data and assessing its performance on both tasks. Furthermore, we could also look into implementing more image artifacts to our simulated data sets to increase the variation in our data.
 
