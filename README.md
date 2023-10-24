@@ -12,7 +12,7 @@ To overcome the challenge of acquiring extensive ground truth data for CNN train
 
 I presented our work at the Fall 2022 American Geophysical Union conference in Chicago.
 
-![AGU Poster](/assets/img/AGU_Poster.png)
+![AGU Poster](/assets/img/Model_Figure.png)
 
 **Improvements:** I would have aimed to introduce increased intricacy into both the randomization function within the pre-training process (such as incorporating non-linear transformations and adding Gaussian noise) and the overall U-Net model (by considering enhancements like the Laplace filter and deeper layers). These modifications could have been explored to further refine our ability to enhance pixel unmixing, particularly at the boundaries of distinct semantic regions.
 
