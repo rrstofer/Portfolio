@@ -64,5 +64,3 @@ We ran a variety of models inclduing Random Forest, Naive-Bayes, Boosting, and L
 )](/assets/img/hate_crime_report.Rmd)
 
 **Team:** Mitchell Rapaport, Ryan Stofer
-
-[![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
