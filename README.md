@@ -9,28 +9,6 @@ B.S. - Applied Mathematics & Statistics and Data Science, University of Californ
 
 ___
 
-### Capstone: Deep Learning X-ray Diffraction Model 
-(_January 2023 – June 2023_)
-
-**Overview:** As part of the UCSB Capstone program, my group and I partnered with the Stanford Synchrotron Radiation Lightsource (SLAC SSRL), a division of SLAC National Accelerator Laboratory, to research and develop a deep learning model capable of classifying the resolution of individual X-ray diffraction shots.
-
-We divided our project into two teams, each focused on a specific aspect of multi-task learning model development. One team developed a CNN for classifying images as single- or multi-lattice, while my team created a CNN to predict image resolution. Using a ResNet-based architecture, both teams achieved significant success in model performance. Our multi-lattice detection  CNN achieved 94% accuracy, and the resolution quantification CNN attained a 0.96 Pearson correlation value on simulated data, with high qualitative performance observed on experimental data. This project demonstrates the potential of deep learning in addressing the data rate challenge in protein crystallography.
-
-![Capstone_Poster](/assets/img/SLAC_Poster.png)
-
-**Improvements:** If allotted more time, we would have liked to extend our work further by testing our model on more real user data and assessing its performance on both tasks. Furthermore, we could also look into implementing more image artifacts to our simulated data sets to increase the variation in our data.
-
-
-**Technical Skills:** Convolutional Neural Network, Deep Learning, PyTorch, TensorFlow
-
-**Tools:** Python, CUDA
-
-**Team:** Aleksander Cichosz, Vardan Martirosyan, Teo Zeng, Ryan Stofer
-
-[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/dermen/resonet)
-
-___
-
 ### Super Resolution of Land Surface Temperature (LST) images 
 (_May 2022 – September 2023_)
 
@@ -53,7 +31,32 @@ I presented our work at the Fall 2022 American Geophysical Union conference in C
 
 [![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
 
+___
+
+### Capstone: Deep Learning X-ray Diffraction Model 
+(_January 2023 – June 2023_)
+
+**Overview:** As part of the UCSB Capstone program, my group and I partnered with the Stanford Synchrotron Radiation Lightsource (SLAC SSRL), a division of SLAC National Accelerator Laboratory, to research and develop a deep learning model capable of classifying the resolution of individual X-ray diffraction shots.
+
+We divided our project into two teams, each focused on a specific aspect of multi-task learning model development. One team developed a CNN for classifying images as single- or multi-lattice, while my team created a CNN to predict image resolution. Using a ResNet-based architecture, both teams achieved significant success in model performance. Our multi-lattice detection  CNN achieved 94% accuracy, and the resolution quantification CNN attained a 0.96 Pearson correlation value on simulated data, with high qualitative performance observed on experimental data. This project demonstrates the potential of deep learning in addressing the data rate challenge in protein crystallography.
+
+![Capstone_Poster](/assets/img/SLAC_Poster.png)
+
+**Improvements:** If allotted more time, we would have liked to extend our work further by testing our model on more real user data and assessing its performance on both tasks. Furthermore, we could also look into implementing more image artifacts to our simulated data sets to increase the variation in our data.
+
+
+**Technical Skills:** Convolutional Neural Network, Deep Learning, PyTorch, TensorFlow
+
+**Tools:** Python, CUDA
+
+**Team:** Aleksander Cichosz, Vardan Martirosyan, Teo Zeng, Ryan Stofer
+
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/dermen/resonet)
+
+___
+
 ### National Hate Crime Model
+(_January 2022 - March 2022_)
 
 **Overview:** During my undergraduate machine learning course, my partner and I were assigned the task of developing a machine learning model on a topic of our choice. We chose to create a model capable of classifying offenders' races based on data from hate crimes recorded by the FBI Crime Data Explorer from 2010 to 2019. To achieve this, we explored a range of machine learning models, including Random Forest, Naive-Bayes, Boosting, and Logistic Regression. We also created an HTML report that documented our thought processes, offering explanations for exploratory data analysis (EDA), data preprocessing, and model testing and evaluation.
 
