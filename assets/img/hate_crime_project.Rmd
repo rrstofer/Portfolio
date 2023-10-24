@@ -1,0 +1,857 @@
+---
+title: "Hate Crime Final Project Report"
+author: "Mitchell Rapaport & Ryan Stofer"
+subtitle: PSTAT 131/231
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    number_sections: no
+  pdf_document:
+    toc: yes
+---
+
+# Introduction
+
+The purpose of this project is to generate a model that will predict the offender's race for a specific hate crime.
+
+## What is a hate crime?
+
+The FBI has defined a hate crime as a "criminal offense against a person or property motivated in whole or in part by an offender's bias against a race, religion, disability, sexual orientation, ethnicity, gender, or gender identity." That being said, hate itself is not a crime---and the FBI is mindful of protecting freedom of speech and other civil liberties. Attached below is a video from CNN which clarifies certain misconceptions about hate crimes.
+
+```{r,message=FALSE,warning=FALSE}
+library(vembedr)
+embed_url("https://www.youtube.com/watch?v=lZ13i67RoQs")
+```
+
+Specifically, our hate crime data comes from the Hate Crime Statistics Program of the FBI Uniform Crime Reporting (UCR) Program. According to the FBI UCR Program, they collect data regarding criminal offenses that were motivated, in whole or in part, by the offender's bias against the victim's race/ethnicity/ancestry, gender, gender identity, religion, disability, or sexual orientation, and were committed against persons, property, or society. 
+
+## Why might this model be useful?
+
+There are thousands of unsolved crimes in the USA every year. Any information about a suspect can be a significant factor in their capture. This model can be used to try and predict the race of an unknown suspect when a hate crime is committed, helping to increase the chances of finding them. 
+
+## Loading Data and Packages
+
+Our dataset includes 2 different csv files. The first one consists of records of different hate crimes in the USA since 1990. We obtained this dataset from the FBI Crime Data Explorer website: <https://crime-data-explorer.fr.cloud.gov/pages/downloads>
+
+Our second dataset contains Annual State Resident Population Estimates for 6 Race Groups by Age, Sex, and Hispanic Origin: April 1, 2010 to July 1, 2019. We obtained this dataset from the US census website: <https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-detail.html>
+
+There are around 236,844 observations with 14 predictors that we can use in this joined dataset.
+
+Key variables:
+
+`DATA_YEAR`: year of crime
+
+`AGENCY_TYPE_NAME`: type of agency that reported the crime, either city or county
+
+`STATE_ABBR`: abbreviation of state where crime was committed
+
+`STATE_NAME`: name of state where crime was committed
+
+`DIVISION_NAME`: geographical division where crime was committed, ex:Pacific
+
+`POPULATION_GROUP_CODE`: group code for population
+
+`TOTAL_OFFENDER_COUNT`: how many people committed the crime
+
+`OFFENDER_RACE`: RESULT VARIABLE: race of the offender
+
+`VICTIM_COUNT`: how many victims there were
+
+`OFFENSE_NAME`: type of crime committed
+
+`LOCATION_NAME`: location of crime, ex: Residence/Home
+
+`BIAS_DESC`: class of the victim/s, ex: gay,black
+
+`VICTIM_TYPES`: type of victim, ex: individual, business, etc.
+
+`POP_STATE`: population of the state in the year when the crime occurred
+
+```{r load-libraries-and-files,message=FALSE,warning=FALSE}
+options(warn=-1)
+library(plyr)
+library(naivebayes)
+library(tidyverse)
+library(tidyr)
+library(yardstick)
+library(ggplot2)
+library(reshape2)
+library(sjmisc)
+library(tree)
+library(class)
+library(randomForest)
+library(gbm)
+library(caret)
+library(nnet)
+library(dplyr)
+
+hate <- read.csv("hate_crime.csv")
+census <- read.csv("ARS per state.csv")
+
+set.seed(1234321)
+```
+
+# Data Cleaning
+
+We performed the following procedures in cleaning our data:
+
+-   Removed unnecessary predictors
+
+-   Cleared out NA data Filter our data to 2010-2019
+
+-   Transformed all non-numeric values into factors
+
+```{r filter-hate-data}
+hate <- hate %>% select(-c("INCIDENT_ID","ORI","PUB_AGENCY_UNIT","REGION_NAME","POPULATION_GROUP_DESC", "ADULT_VICTIM_COUNT","JUVENILE_VICTIM_COUNT","ADULT_OFFENDER_COUNT","JUVENILE_OFFENDER_COUNT","OFFENDER_ETHNICITY","TOTAL_INDIVIDUAL_VICTIMS","MULTIPLE_BIAS","INCIDENT_ID","MULTIPLE_OFFENSE", "INCIDENT_DATE","PUB_AGENCY_NAME"))
+
+# Filters data to only 2010-2019 and removes any observations with unknown offender race
+hate <- filter(hate,DATA_YEAR > 2009 & DATA_YEAR < 2020 & OFFENDER_RACE!="Unknown" & OFFENDER_RACE!="")
+
+# Makes all non-numeric columns into factors
+hate <- transform(
+  hate,
+  AGENCY_TYPE_NAME = as.factor(AGENCY_TYPE_NAME),
+  STATE_NAME = as.factor(STATE_NAME),
+  STATE_ABBR = as.factor(STATE_ABBR),
+  DIVISION_NAME = as.factor(DIVISION_NAME),
+  POPULATION_GROUP_CODE = as.factor(POPULATION_GROUP_CODE),
+  OFFENDER_RACE = as.factor(OFFENDER_RACE),
+  OFFENSE_NAME = as.factor(OFFENSE_NAME),
+  LOCATION_NAME = as.factor(LOCATION_NAME),
+  BIAS_DESC = as.factor(BIAS_DESC),
+  VICTIM_TYPES = as.factor(VICTIM_TYPES)
+)
+```
+
+-   Combined relevant data from `census` and added it to `hate`
+
+```{r state-pop}
+# Calculate population for every state by year
+name_pops = census %>% 
+  group_by(NAME) %>% 
+summarise(POPESTIMATE2010=sum(POPESTIMATE2010),      POPESTIMATE2011=sum(POPESTIMATE2011),POPESTIMATE2012=sum(POPESTIMATE2012),POPESTIMATE2013=sum(POPESTIMATE2013),POPESTIMATE2014=sum(POPESTIMATE2014),POPESTIMATE2015=sum(POPESTIMATE2015),POPESTIMATE2016=sum(POPESTIMATE2016),POPESTIMATE2017=sum(POPESTIMATE2017),POPESTIMATE2018=sum(POPESTIMATE2018),POPESTIMATE2019=sum(POPESTIMATE2019))
+
+# Adds state population to hate
+POP_STATE=c()
+for (i in 1:nrow(hate)) {
+  year = hate[i,"DATA_YEAR"]
+  pop_est = paste("POPESTIMATE",as.character(year),sep="")
+  state=hate$STATE_NAME[i]
+  POP_STATE = append(POP_STATE,as.integer(name_pops[name_pops$NAME==state,pop_est]))
+}
+hate <- mutate(hate,POP_STATE = POP_STATE)
+```
+
+-   Add a new column for each individual type of offense
+
+```{r unique offense}
+# Finds all unique offenses
+offenses <- unique(hate$OFFENSE_NAME)
+single = c()
+for (offense in offenses){
+  x=as.list(strsplit(offense,";")[[1]])
+  for (i in x){
+  if (FALSE %in% str_contains(single,i)){
+    single <- append(single,i)
+  }
+ }
+}
+
+# Adds each offense to hate data frame
+single = sort(single)
+for (o in single){
+hate[[o]] = grepl(o,hate$OFFENSE_NAME)
+}
+```
+
+# EDA
+
+## Barplot of Top Offense Types
+
+```{r EDA-1-offense-barplot}
+counts = hate %>% select(c(`Aggravated Assault`:`Wire Fraud`)) %>% colSums()
+
+# Creates and orders data for offenses
+offense_dist = data.frame(dist=counts/sum(counts),offense=single)
+sig_offenses = offense_dist[which(offense_dist$dist>0.02),]
+sig_offenses = sig_offenses[order(sig_offenses$dist),]
+
+# Offense Rate Barplot
+ggplot(sig_offenses, aes(x=dist, y=reorder(offense,dist))) + 
+  geom_bar(stat = "identity",fill="steelblue") + 
+  ggtitle("Barplot of Highest Offense Rates") +
+  xlab("Proportion") + ylab("Offense")
+```
+
+This shows the rates over all offenses from 2010-2019 of the top 5 of 46 unique offenses. The National Incident-Based Reporting System (NIBRS) defines the following offenses as:
+
+-   Aggravated Assault---An unlawful attack by one person upon another wherein the offender uses a weapon or displays it in a threatening manner, or the victim suffers obvious severe or aggravated bodily injury involving apparent broken bones, loss of teeth, possible internal injury, severe laceration, or loss of consciousness. This also includes assault with disease (as in cases when the offender is aware that he/she is infected with a deadly disease and deliberately attempts to inflict the disease by biting, spitting, etc.).
+
+-   Simple Assault---An unlawful physical attack by one person upon another where neither the offender displays a weapon, nor the victim suffers obvious severe or aggravated bodily injury involving apparent broken bones, loss of teeth, possible internal injury, severe laceration, or loss of consciousness.
+
+-   Intimidation---To unlawfully place another person in reasonable fear of bodily harm through the use of threatening words and/or other conduct, but without displaying a weapon or subjecting the victim to actual physical attack.
+
+## Proportion of all Offense Types
+
+```{r EDA-2-prop-crime-type, fig.width= 12, fig.height=6}
+# Calculates proportion of hate crime type per year
+o_summary = hate %>% select(c(DATA_YEAR,`Aggravated Assault`:`Wire Fraud`))
+res = ddply(o_summary , "DATA_YEAR", function(x) colSums(x[single]))
+total=rowSums(res[,2:47])
+for (i in single){
+  res[[i]]=res[[i]]/total
+}
+
+# Melts data with respect to offense names for plotting
+mlt_offense = melt(res,id.vars="DATA_YEAR",measure.vars=single)
+
+# Plots Proportion of hate crime type per year
+ggplot(mlt_offense, aes(x = DATA_YEAR, y = value, color = variable)) + geom_line() + geom_point() + 
+  ggtitle("Proportion of hate crime type per year") + 
+  xlab("Year") + ylab("Proportion of hate crime")  + 
+  scale_colour_discrete(name = "Type of Offense")+
+  scale_x_continuous(breaks=seq(2010,2019,1))
+```
+
+This shows proportion of hate crime offense type per year. As we can see, there is general consistency among the years for hate crime offenses. There seems to be an interesting spike in 2012 for one of the offenses colored green, so in the next plot we look more into that.
+
+## Top 6 Offense Type Proportions
+
+```{r EDA-2-top-6-prop}
+# Filters offense names to only top 6 offenses
+spike = mlt_offense[which(mlt_offense$value >0.02),]
+offenses6 = unique(spike$variable)
+top6 = mlt_offense[which(mlt_offense$variable %in% offenses6),]
+
+# Plots top 6 offenses
+ggplot(top6, aes(x = DATA_YEAR, y = value, color = variable)) + geom_line() + geom_point() + 
+  ggtitle("Proportion of hate crime type per year") + 
+  xlab("Year") + ylab("Proportion of hate crime")  + 
+  scale_colour_discrete(name = "Top 6 Offense types")+
+  scale_x_continuous(breaks=seq(2010,2019,1))
+```
+
+We noticed an interesting spike in one of the offenses in 2012. This level is drugs/narcotics violations, but we do not have any prior knowledge of why there may be a spike in this certain year.
+
+## Offender Race Proportion per year
+
+```{r EDA-3-percent-offender-race,message=FALSE,warning=FALSE}
+# Calculates proportion of offender race per year
+offenders_summary = hate %>% select(c(DATA_YEAR,OFFENDER_RACE)) %>% 
+  group_by(DATA_YEAR,OFFENDER_RACE) %>% 
+  summarise(value = n())
+
+for (year in unique(offenders_summary$DATA_YEAR)){
+  cut=offenders_summary[which(offenders_summary$DATA_YEAR==year),]
+  total=sum(cut$value)
+  offenders_summary$value[offenders_summary$DATA_YEAR==year]<-offenders_summary$value[offenders_summary$DATA_YEAR==year]/total
+}
+
+# Plots proportion of offender race per year
+ggplot(offenders_summary, aes(x = DATA_YEAR, y = value, color = OFFENDER_RACE)) + geom_line() + geom_point() +
+  ggtitle("Proportion of Offender crime type per year") + 
+  xlab("Year") + ylab("Proportion of Offender crime")  + 
+  scale_colour_discrete(name = "Offender Race")+
+  scale_x_continuous(breaks=seq(2010,2019,1))
+```
+
+As we can see, white offenders committed more crimes than any other race in every year, almost tripling every other race combined. Black offenders have the second highest rate at about 20%, while every other race has extremely low rates in comparison.
+
+```{r add-bias-columns}
+# Creates new boolean columns for each individual bias
+  hate$Black <- grepl("Anti-Black", hate$BIAS_DESC)
+  hate$Gay <- grepl("Anti-Gay", hate$BIAS_DESC)
+  hate$White <- grepl("Anti-White", hate$BIAS_DESC)
+  hate$Islamic <- grepl("Anti-Islamic", hate$BIAS_DESC)
+  hate$Mental <- grepl("Anti-Mental", hate$BIAS_DESC)
+  hate$Race <- grepl("Race/", hate$BIAS_DESC)
+  hate$Mult_Religions <- grepl("Religions", hate$BIAS_DESC)
+  hate$Hispanic <- grepl("Anti-Hispanic", hate$BIAS_DESC)
+  hate$Religion <- grepl("Anti-Other Religion", hate$BIAS_DESC)
+  hate$Asian <- grepl("Anti-Asian", hate$BIAS_DESC)
+  hate$Lesbian <- grepl("Anti-Lesbian ", hate$BIAS_DESC)
+  hate$Catholic <- grepl("Anti-Catholic", hate$BIAS_DESC)
+  hate$LGBT <- grepl("Anti-Lesbian, Gay", hate$BIAS_DESC)
+  hate$Mult_Races <- grepl("Anti-Multiple Races", hate$BIAS_DESC)
+  hate$Physical <- grepl("Anti-Physical", hate$BIAS_DESC)
+  hate$Jewish <- grepl("Anti-Jewish", hate$BIAS_DESC)
+  hate$Native <- grepl("Alaska", hate$BIAS_DESC)
+  hate$Bisexual <- grepl("Anti-Bisexual", hate$BIAS_DESC)
+  hate$Heterosexual <- grepl("Anti-Heterosexual", hate$BIAS_DESC)
+  hate$Protestant <- grepl("Anti-Protestant", hate$BIAS_DESC)
+  hate$Atheism <- grepl("Anti-Atheism", hate$BIAS_DESC)
+  hate$Gender <- grepl("Anti-Gender", hate$BIAS_DESC)
+  hate$Female <- grepl("Anti-Female", hate$BIAS_DESC)
+  hate$Male <- grepl("Anti-Male", hate$BIAS_DESC)
+  hate$Transgender <- grepl("Anti-Trans", hate$BIAS_DESC)
+  hate$Islander <- grepl("Anti-Native Hawaii", hate$BIAS_DESC)
+  hate$Arab <- grepl("Anti-Arab", hate$BIAS_DESC)
+  hate$Buddhist <- grepl("Anti-Buddhist", hate$BIAS_DESC)
+  hate$Sikh <- grepl("Anti-Sikh", hate$BIAS_DESC)
+  hate$Christian <- grepl("Anti-Other Christian", hate$BIAS_DESC)
+  hate$Orthodox <- grepl("Orthodox", hate$BIAS_DESC)
+  hate$Hindu <- grepl("Anti-Hindu", hate$BIAS_DESC)
+  hate$Mormon <- grepl("Anti-Mormon", hate$BIAS_DESC)
+  hate$Jehovah <- grepl("Anti-Jehovah", hate$BIAS_DESC)
+ 
+# Stores names of all bias types 
+bias_names <- c("Black","Gay","White","Islamic","Mental","Race",
+                "Mult_Religions","Hispanic","Religion","Asian",
+                "Lesbian","Catholic","LGBT","Mult_Races","Physical",
+                "Jewish","Native","Bisexual","Heterosexual","Protestant",
+                "Atheism","Gender","Female","Male","Transgender",
+                "Islander","Arab","Buddhist","Sikh","Christian", "Orthodox",
+                "Hindu","Mormon","Jehovah")
+```
+
+## Bias Desc per Year
+
+```{r EDA-4-prop-bias}
+# Calculates proportion of biases
+bias_summary = hate %>% select(c(DATA_YEAR, Black:Jehovah))
+res = ddply(bias_summary , "DATA_YEAR", function(x) colSums(x[bias_names]))
+total = rowSums(res[,2:35])
+
+for (i in bias_names){
+  res[[i]]=res[[i]]/total
+}
+
+# Melts data with respect to bias names for plotting
+melt_bias = melt(res,id.vars="DATA_YEAR", measure.vars= bias_names)
+
+# Plots proportion of hate crime bias per year
+ggplot(melt_bias, aes(x = DATA_YEAR, y = value, color = variable)) + geom_line() + geom_point() + 
+  ggtitle("Proportion of hate crime bias per year") + 
+  xlab("Year") + ylab("Proportion of hate crime bias")  + 
+  scale_colour_discrete(name = "Bias Description", 
+                        labels = paste("Anti-",bias_names,sep="")) +
+  scale_x_continuous(breaks=seq(2010,2019,1))
+
+# Finds top 5 bias
+top_5_bias <- aggregate(melt_bias$value, by=list(Bias=melt_bias$variable), FUN=sum) 
+top_5_bias <- top_5_bias %>%
+    arrange(desc(x)) %>%
+    slice(1:5) 
+top_5_bias$Bias
+```
+
+This shows the proportion of the type of Bias description from 2010-2019. We see that around 1/3 of hate crimes committed are towards African-American people. Also, we see from the code above that the other top biases are Anti-Gay, Anti-White, Anti-Hispanic, and Anti-LGBT out of the total 34 biases.
+
+## Bias Desc Proportion by State
+
+```{r EDA-5-top-5-bias-20-states, fig.width = 10, fig.height= 5}
+# Calculates proportion of hate crime bias per year
+bias_state_summary = hate %>% select(c(DATA_YEAR, STATE_ABBR, Black:Jehovah))
+res_state = ddply(bias_state_summary, c("DATA_YEAR","STATE_ABBR"), function(x) colSums(x[bias_names]))
+
+total = rowSums(res_state[,3:36])
+for (i in bias_names){
+  res_state[[i]]=res_state[[i]]/total
+}
+
+# Melts data with respect to bias name for plotting
+melt_bias_state = melt(res_state, id.vars=c("DATA_YEAR","STATE_ABBR"), measure.vars= bias_names)
+
+# Selects top 10 most and least populated states
+state_bias_1 <- melt_bias_state %>% filter(STATE_ABBR %in% 
+                                               c("CA", "TX", "FL", "NY", "PA", 
+                                                 "IL", "OH", "GA", "NC", "MI", 
+                                                 "WY", "VT", "DC", "AL", "ND",
+                                                 "SD", "DE", "RI", "MT", "ME"))
+
+# Filters by top 5 bias
+state_bias <- state_bias_1 %>% filter(variable %in% c("Black","Gay","White","Hispanic","LGBT"))
+
+# Orders states by population (top 10 highest and lowest)
+state_bias$STATE_ABBR <- factor(state_bias$STATE_ABBR, levels=c("CA","TX","FL","NY","PA",
+                                 "IL", "OH", "GA", "NC", "MI", 
+                                 "ME", "MT", "RI", "DE", "SD",
+                                 "ND", "AL", "DC", "VT", "WY"))
+
+# Plots proportion of hate crime bias per year for 20 states
+ggplot(state_bias, aes(x = DATA_YEAR, y = value, color = variable)) + geom_line() + geom_point() + 
+  ggtitle("Proportion of hate crime type per year") + 
+  xlab("Year") + ylab("Proportion of hate crime")  +
+  scale_colour_discrete(name = "Bias Description", labels = c("Anti-Black", "Anti-Gay", "Anti-White","Anti-Hispanic","Anti-LGBT")) +
+  scale_x_continuous(breaks=seq(2010,2019,2)) + facet_wrap(~STATE_ABBR) + theme(axis.text.x = element_text(size = 6))
+```
+
+Unlike the previous plot, this one shows the proportion of Bias description for the top 10 most and least populated states in the US from 2010-2019 (Source: <https://worldpopulationreview.com/states>). We see that there is a clear pattern in the most populated states with Anti-Black and Anti-Gay accounting for more than half of the hate crimes. However, it is more difficult to see which bias discriminations stick out for the least populated states as the trends vary highly over the years (mainly due to the lack of observations per state).
+
+## Heatmap of Offender Race vs Bias Desc
+
+```{r EDA-6-heatmap-bias-and-race}
+# Calculates proportion of hate crime bias per offender race
+offender_bias = hate %>% select(c(OFFENDER_RACE,bias_names))
+offender_bias_res = ddply(offender_bias , "OFFENDER_RACE", function(x) colSums(x[bias_names]))
+ototal=rowSums(offender_bias_res[,2:35])
+
+for (i in bias_names){
+  offender_bias_res[[i]]=offender_bias_res[[i]]/ototal
+}
+
+# Melts data with respect to bias type
+offender_bias_melt = melt(offender_bias_res,id.vars="OFFENDER_RACE",measure.vars=bias_names)
+
+# Filters for top 5 bias
+cut_offender_bias <- offender_bias_melt %>% filter(variable %in% c("Black","Gay","White","Hispanic","LGBT"))
+  
+cut_offender_bias$variable <- paste("Anti-", cut_offender_bias$variable, sep ="") %>% as.factor()
+
+
+# Plots heatmap of bias description and offender race
+ggplot(cut_offender_bias, aes(variable,OFFENDER_RACE)) +  
+  scale_fill_gradient(name = "Proportion")+
+  geom_tile(aes(fill = value)) + xlab("Bias Description") + ylab("Offender Race")
+```
+
+This is a heatmap created to compare the proportion of offender's race with the top 5 bias descriptions across all hate crimes. We see from this heatmap that there is a high proportion of Anti-Black hate crimes committed by white offenders in comparison to other races.
+
+# Data Pre-processing
+
+Before we created our models, we had to perform a couple of minor data pre-processing actions to account for required parameters in different models. These actions include the following:
+
+-   Transform `DATA_YEAR` to a factor (`DATA_YEAR` could not have been plotted on graphs if it were originally a factor)
+
+-   Removes state population and all individual offense names and bias description columns (There are observations where the hate crime was on the federal level and would thus have missing values for state population. Also, the individual offense names and bias descriptions are no longer needed)
+
+-   Lumps certain factors so that all factors have a maximum of 32 levels (Certain models can not be created if there are >32 factor levels.)
+
+-   Removes `STATE_ABBR` as `STATE_NAME` already contains the name of each state
+
+```{r data-pre-processing}
+# Transforms DATA_YEAR to factor
+# Note: If DATA_YEAR was a factor earlier, then it would be unable to plot EDA graphs
+hate <- hate %>% transform(DATA_YEAR = as.factor(DATA_YEAR))
+
+# Removes state population, and all individual offense names and bias columns
+hate1 = hate %>% select(DATA_YEAR:VICTIM_TYPES)
+
+# Lumps factors so there is only a total of 32
+hate1 = hate1 %>% mutate(BIAS_DESC=fct_lump(BIAS_DESC,31),
+                         OFFENSE_NAME=fct_lump(OFFENSE_NAME,31),
+                         LOCATION_NAME=fct_lump(LOCATION_NAME,31))
+
+# Remove STATE_ABBR because we already have STATE_NAME
+hate1 = hate1 %>% select(-STATE_ABBR)
+```
+
+# Test/Train split
+
+We split the data 70% training and 30% testing. We performed this split twice, one with the data set not containing `POP_STATE` because it has some Nan values, and the other containing all information as the RandomForest model had a maximum level cap of 32. 
+
+```{r Test-Train split}
+set.seed(1234)
+split1<- sample(c(rep(0, 0.7 * nrow(hate1)), rep(1, 0.3 * nrow(hate1))))
+train1 <- hate1[split1 == 0, ]
+test1 <- hate1[split1== 1, ]
+
+# Hate2 contains pop_state
+# Remove STATE_ABBR because we already have STATE_NAME
+hate2 = hate %>% select(DATA_YEAR:POP_STATE)
+hate2 = hate2 %>% select(-STATE_ABBR)
+
+set.seed(1234)
+split2<- sample(c(rep(0, 0.7 * nrow(hate2)), rep(1, 0.3 * nrow(hate2))))
+train2 <- hate2[split2 == 0, ]
+test2 <- hate2[split2== 1, ]
+```
+
+# Model Building & Performance
+
+## Random Forest
+
+For our random forest model, we set `mtry=3` since the model took 30min to process! We used data from the first split as there are too many factor levels for all state variables. Cross-validation is not needed to evaluate the accuracy of our model since we can use the Out-of-bag error to assess the accuracy of our model.
+
+```{r random-forest-model,eval=FALSE}
+rf.hate = randomForest(OFFENDER_RACE ~ ., data=train1, mtry=3, ntree=500, importance=TRUE)
+saveRDS(rf.hate,"./RFhate")
+```
+
+```{r download-random-forest,message=FALSE,warning=FALSE}
+rf.hate <- readRDS('./RFHATE')
+rf.hate
+```
+
+Our OOB Error estimate is 23.1% showing that our model works fairly well. This confusion matrix isn't easily interpretable, so at the end of this section we have included a better visual.
+
+```{r rf-plot}
+plot(rf.hate,col=1:8)
+legend("right", colnames(rf.hate$err.rate),col=1:8,cex=0.5,fill=1:8)
+```
+
+The plotted random forest model shows that there is an extremely small error accuracy for predicting white offenders and a somewhat reasonable error accuracy for predicting black offenders, but a high error rate for other racial groups.
+
+```{r rf-importance-plot, fig.width = 10, fig.height= 5}
+varImpPlot(rf.hate)
+```
+
+We see that `BIAS_DESC`, `TOTAL_OFFENDER_COUNT`, and `STATE_NAME` are the top 3 importance factors for our random forest.
+
+```{r rf-model-accuracy}
+yhat.rf = predict (rf.hate, newdata = test1)
+
+# Confusion matrix
+rf.err = table(pred = yhat.rf, truth = test1$OFFENDER_RACE)
+test.rf.err = 1 - sum(diag(rf.err))/sum(rf.err)
+test.rf.err
+```
+
+We see that the Random Forest model has performed well with having only \~23% error rate!
+
+The following plot shows a confusion matrix of our random forest predictions, displaying the counts of where the model guessed correctly and not.
+
+```{r,fig.width=10,message=FALSE,warning=FALSE}
+truth_predicted <- data.frame(
+  obs = test1$OFFENDER_RACE,
+  pred = yhat.rf
+)
+
+cm <- conf_mat(truth_predicted, obs, pred)
+
+autoplot(cm, type = "heatmap") +
+  scale_fill_gradient(low = "pink", high = "cyan")+
+  theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust=1))
+```
+
+## Boosting
+
+For our boosted model, we used the `gbm()` as it is able to compute multinomial distributions efficiently. We used a total of 500 trees for the model. We performed cross-validation by creating a for loop that saves the model and its accuracy for each fold.
+
+```{r}
+k.boost.folds1 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train1$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- gbm(OFFENDER_RACE~.,data=train1[folds[[i]],],
+                 distribution="multinomial", n.trees=500, interaction.depth=4)
+        yhat.boost = predict(model, newdata = train1[-folds[[i]],],n.trees=500)
+        yhat.boost = as.matrix(yhat.boost[,,1])
+        yhat.boost = yhat.boost %>% cbind(max_ind=colnames(yhat.boost)[max.col(yhat.boost[,1:6])])
+        # Confusion matrix
+        boost.err = table(pred = yhat.boost[,7], truth = train1[-folds[[i]],]$OFFENDER_RACE)
+        fold.boost.err = 1 - sum(diag(boost.err))/sum(boost.err)
+        accuracies.dt <- append(accuracies.dt, fold.boost.err)
+        models.dt[[i]]<-model
+
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+
+```
+
+The following code chunk performs 5 fold cross-validation on our boosting model. We saved our model as an RDS file since the computational time to run was around 30 minutes.
+
+```{r,eval=FALSE}
+CVB1 <- k.boost.folds1(5)
+saveRDS(CVB1,"./BOOSThate1")
+```
+
+```{r}
+CVB1 <- readRDS('./BOOSTHATE1')
+```
+
+In this chunk we find what model iteration performed the best and use it to predict on our test data.
+
+```{r,message=FALSE,warning=FALSE}
+best_boost_index1 = which.min(CVB1[[2]])
+best_boost1 = CVB1[[1]][[best_boost_index1]]
+summary(best_boost1)
+boost_pred1 <- predict(best_boost1,newdata=test1)
+yhat.boost1 = as.matrix(boost_pred1[,,1])
+yhat.boost1 = yhat.boost1 %>% cbind(max_ind=colnames(yhat.boost1)[max.col(yhat.boost1[,1:6])])
+# Confusion matrix
+boost.err1 = table(pred = yhat.boost1[,7], truth = test1$OFFENDER_RACE)
+test.boost.err1 = 1 - sum(diag(boost.err1))/sum(boost.err1)
+test.boost.err1
+```
+
+Our model performed pretty well with only a 23% error rate. Similarly to our RandomForest model, `BIAS_DESC` and `STATE_NAME` were the most important predictors.
+
+Since `gbm()` is able to also compute factor variables for Nan values, we ran the model on both splits of data. The following replicates what we did in the first boosting model to compare how our extra predictor of `POP_STATE` effected the model.
+
+```{r}
+k.boost.folds2 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train2$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- gbm(OFFENDER_RACE~.,data=train2[folds[[i]],],
+                 distribution="multinomial", n.trees=500, interaction.depth=4)
+        yhat.boost = predict(model, newdata = train2[-folds[[i]],],n.trees=500)
+        yhat.boost = as.matrix(yhat.boost[,,1])
+        yhat.boost = yhat.boost %>% cbind(max_ind=colnames(yhat.boost)[max.col(yhat.boost[,1:6])])
+        # Confusion matrix
+        boost.err = table(pred = yhat.boost[,7], truth = train2[-folds[[i]],]$OFFENDER_RACE)
+        fold.boost.err = 1 - sum(diag(boost.err))/sum(boost.err)
+        accuracies.dt <- append(accuracies.dt, fold.boost.err)
+        models.dt[[i]]<-model
+
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+
+```
+
+```{r,eval=FALSE}
+CVB2 <- k.boost.folds2(5)
+saveRDS(CVB2,"./BOOSThate2")
+```
+
+```{r}
+CVB2 <- readRDS('./BOOSTHATE2')
+```
+
+```{r,message=FALSE,warning=FALSE}
+best_boost_index2 = which.min(CVB2[[2]])
+best_boost2 = CVB2[[1]][[best_boost_index2]]
+summary(best_boost2)
+boost_pred2 <- predict(best_boost2,newdata=test2)
+yhat.boost2 = as.matrix(boost_pred2[,,1])
+yhat.boost2 = yhat.boost2 %>% cbind(max_ind=colnames(yhat.boost2)[max.col(yhat.boost2[,1:6])])
+# Confusion matrix
+boost.err2 = table(pred = yhat.boost2[,7], truth = test2$OFFENDER_RACE)
+test.boost.err2 = 1 - sum(diag(boost.err2))/sum(boost.err2)
+test.boost.err2
+```
+
+Adding `POP_STATE` as a predictor did not help the boosting model much, barely decreasing the error rate.
+
+With 5 folds, the Boosted models took 30 min to cross validate for both splits and had an error rates of around 23%. `BIAS_DESC`, `STATE_NAME`, `OFFENSE_NAME`, and `LOCATION_NAME` were key predictors in the creation of our model.
+
+## Logistic Regression
+
+We now try to model our data with logistic regression. Since our classification has more than 2 classes, we will need to use multinomial logistic regression since we have 6 discrete possible outcomes. Luckily, the multinom() function from the nnet package is capable of computing our model. Furthermore, we set MaxNWts = 10000 as there are thousands of weights in our data. We create a cross validation function in the code-block below which will take one numerical input value k which represents the number of folds for our cross-validation.
+
+```{r}
+k.LR.folds1 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train1$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- multinom(OFFENDER_RACE~.,data=train1[folds[[i]],],MaxNWts=10000)
+        predictions <- predict(object = model, newdata = train1[-folds[[i]],], type = "class")
+        LR.err = table(pred = predictions, truth = train1[-folds[[i]],]$OFFENDER_RACE)
+        fold.LR.err = 1 - sum(diag(LR.err))/sum(LR.err)
+        accuracies.dt <- append(accuracies.dt, fold.LR.err)
+        models.dt[[i]]<-model
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+```
+
+The following code chunk performs 5 fold cross-validation on our logistic regression model. We saved our model as an RDS file since the computational time to run was around 30 minutes.
+
+```{r,eval=FALSE}
+CVLR1 <- k.LR.folds1(5)
+saveRDS(CVLR1,"./LRhate1")
+```
+
+We now load our saved RDS file.
+
+```{r}
+CVLR1 <- readRDS('./LRHATE1')
+```
+
+We now find the best iteration of the logistic regression model and calculate its test error rate when exposed to the test split.
+
+```{r}
+# Finds best LR model
+best_LR_index1 = which.min(CVLR1[[2]])
+best_LR1 = CVLR1[[1]][[best_LR_index1]]
+
+# Predicts on testing data
+LR_pred1 <- predict(best_LR1,newdata=test1)
+
+# Computes test error rate
+LR.err1 = table(pred = LR_pred1, truth = test1$OFFENDER_RACE)
+test.LR.err1 = 1 - sum(diag(LR.err1))/sum(LR.err1)
+test.LR.err1
+```
+
+We now repeat the same process, but with our second data split.
+
+```{r}
+k.LR.folds2 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train2$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- multinom(OFFENDER_RACE~.,data=train2[folds[[i]],],MaxNWts=10000)
+        predictions <- predict(object = model, newdata = train2[-folds[[i]],], type = "class")
+        LR.err = table(pred = predictions, truth = train2[-folds[[i]],]$OFFENDER_RACE)
+        fold.LR.err = 1 - sum(diag(LR.err))/sum(LR.err)
+        accuracies.dt <- append(accuracies.dt, fold.LR.err)
+        models.dt[[i]]<-model
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+```
+
+We run the second split with 5 fold cross-validation.
+
+```{r,eval=FALSE}
+CVLR2 <- k.LR.folds2(5)
+saveRDS(CVLR2,"./LRhate2")
+```
+
+We load the saved model.
+
+```{r}
+CVLR2 <- readRDS('./LRHATE2')
+```
+
+Similarly, we find the best iteration of our logistic regression model and calculate its test error rate when exposed to the test split.
+
+```{r,message=FALSE,warning=FALSE}
+# Finds best LR model
+best_LR_index2 = which.min(CVLR2[[2]])
+best_LR2 = CVLR2[[1]][[best_LR_index2]]
+
+# Predicts on testing data
+LR_pred2 <- predict(best_LR2,newdata=test2)
+
+# Computes test error rate
+LR.err2 = table(pred = LR_pred2, truth = test2$OFFENDER_RACE)
+test.LR.err2 = 1 - sum(diag(LR.err2))/sum(LR.err2)
+test.LR.err2
+```
+
+We see that our multinomial logistic regression model performed just as well as our other models. In fact, our model performed slightly better when the `POP_STATE` predictor was omitted from the model.
+
+The following plot shows a confusion matrix for our first logistic regression model, as it performed better than the second, displaying the counts of where the model guessed correctly and not.
+
+```{r,fig.width=10,message=FALSE,warning=FALSE}
+truth_predicted2 <- data.frame(
+  obs = test1$OFFENDER_RACE,
+  pred = LR_pred1
+)
+
+cm2 <- conf_mat(truth_predicted2, obs, pred)
+
+autoplot(cm2, type = "heatmap") +
+  scale_fill_gradient(low = "pink", high = "cyan")+
+  theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust=1))
+```
+
+## Naive-Bayes
+
+We now try to model our data with Naive-Bayes. We use the `naive_bayes()` function from the `naivebayes` package to compute our model. Furthermore, we manually tuned the `laplace` parameter to `=1` since we want to smooth our model in order to avoid classifications with zero probability. Similar to the multinomial logistic regression model, we created a cross validation function in the code-block below which will take one numerical input value `k` which represents the number of folds for our cross-validation.
+
+```{r}
+k.nb.folds1 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train1$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- naive_bayes(OFFENDER_RACE~.,data=train1[folds[[i]],],usekernel=T,laplace=1)
+        predictions <- predict(object = model, newdata = select(train1[-folds[[i]],],-OFFENDER_RACE), type = "class")
+        nb.err = table(pred = predictions, truth = train1[-folds[[i]],]$OFFENDER_RACE)
+        fold.nb.err = 1 - sum(diag(nb.err))/sum(nb.err)
+        accuracies.dt <- append(accuracies.dt, fold.nb.err)
+        models.dt[[i]]<-model
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+
+```
+
+The following code chunk performs 5 fold cross-validation on our Naive Bayes classifier model. We saved our model as an RDS file so we do not need to recompute again later.
+
+```{r,eval=FALSE}
+CVNB1 = k.nb.folds1(5)
+saveRDS(CVNB1,"./NBhate1")
+```
+
+We now load our saved RDS file.
+
+```{r}
+CVNB1 <- readRDS('./NBHATE1')
+```
+
+We now find the best iteration of the Naive Bayes model. We show a summary of the model formula and notice that the prior probabilities of White and African-American make up a majority (\~$92\%$) of the outcome. We also calculate its test error rate when exposed to the test split which is around $26.7\%$.
+
+```{r,message=FALSE,warning=FALSE}
+best_nb_index1 = which.min(CVNB1[[2]])
+best_nb1 = CVNB1[[1]][[best_nb_index1]]
+summary(best_nb1)
+NB_pred1 <- predict(best_nb1,newdata=select(test1,-OFFENDER_RACE))
+NB.err1 = table(pred = NB_pred1, truth = test1$OFFENDER_RACE)
+test.NB.err1 = 1 - sum(diag(NB.err1))/sum(NB.err1)
+test.NB.err1
+```
+
+We now repeat the same process, but with our second data split.
+
+```{r}
+k.nb.folds2 <- function(k) {
+      models.dt <- vector(mode='list',length=k)
+      accuracies.dt <- c()
+      folds <- createFolds(train2$OFFENDER_RACE, k = k, list = TRUE, returnTrain = TRUE)
+      for (i in 1:k) {
+        model <- naive_bayes(OFFENDER_RACE~.,data=train2[folds[[i]],],usekernel=T,laplace=1)
+        predictions <- predict(object = model, newdata = select(train2[-folds[[i]],],-OFFENDER_RACE), type = "class")
+        nb.err = table(pred = predictions, truth = train2[-folds[[i]],]$OFFENDER_RACE)
+        fold.nb.err = 1 - sum(diag(nb.err))/sum(nb.err)
+        accuracies.dt <- append(accuracies.dt, fold.nb.err)
+        models.dt[[i]]<-model
+      }
+      return (list(models.dt,accuracies.dt))
+    }
+
+```
+
+We run the second split with 5 fold cross-validation.
+
+```{r,eval=FALSE}
+CVNB2 = k.nb.folds2(5)
+saveRDS(CVNB2,"./NBhate2")
+```
+
+We now load the saved RDS file.
+
+```{r}
+CVNB2 <- readRDS('./NBHATE2')
+```
+
+Similarly, we find the best iteration of our logistic regression model and print out its summary. We notice that there is not much difference in the actual model except for the addition of one more feature (`POP_STATE`). We calculate its test error rate when exposed to the test split which is around $27.5\%$, surprisingly doing worse than the model without the extra preictor.
+
+```{r,message=FALSE,warning=FALSE}
+best_nb_index2 = which.min(CVNB2[[2]])
+best_nb2 = CVNB2[[1]][[best_nb_index2]]
+summary(best_nb2)
+NB_pred2 <- predict(best_nb2,newdata=select(test2,-OFFENDER_RACE))
+NB.err2 = table(pred = NB_pred2, truth = test2$OFFENDER_RACE)
+test.NB.err2 = 1 - sum(diag(NB.err2))/sum(NB.err2)
+test.NB.err2
+```
+
+The following plot shows a confusion matrix for our first logistic regression model,as it performed better than the second, displaying the counts of where the model guessed correctly and not.
+
+```{r,fig.width=10,message=FALSE,warning=FALSE}
+truth_predicted3 <- data.frame(
+  obs = test1$OFFENDER_RACE,
+  pred = NB_pred1
+)
+
+cm3 <- conf_mat(truth_predicted3, obs, pred)
+
+autoplot(cm3, type = "heatmap") +
+  scale_fill_gradient(low = "pink", high = "cyan")+
+  theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust=1))
+```
+
+Although the Naive-Bayes Classifier did not perform as well as the other models, this particular model has been the least computationally expensive as it ran significantly faster than the others, by only taking around $2$ minutes for both splits!
+
+# Conclusion
+
+We think that the Random Forest model and gradient boosting algorithm performed extremely well since they are great with high dimensional data due to only working with subsets of data. It is faster to train these models than normal decision trees because we are working only on a subset of features in this model, so we can easily work with hundreds of features at a time. That being said, the performance time of these models was very long. In comparison, Naive-Bayes was the fastest model to build, with an error rate not much worse than our other models. Another finding from our exploratory analysis worth mentioning is that white offenders made up around 70% of our data, so most of our models could simply guess white for any crime and already have a fairly high accuracy rate. Our models technically are not wrong, but it raises the question of whether or not it is viable to try and predict an offender's race when the data is so skewed toward white offenders.
+
+We learned that a majority of our machine learning models use `BIAS_DESC` and `OFFENSE_NAME` as key predictors when classifying offender race. Furthermore, our model had a high percentage of observations where white offenders committed an Anti-Black hate crime and had few observations for offenders who are people of color. This is important because around 1/3 of the total reported hate crimes were Anti-Black. Thus, our models have more bias due to an abundance in white offenders committing Anti-Black hate crimes. In addition, we are not working with all hate crimes that have occurred in the US as the data we trained our model on is only from FBI recorded hate crimes. 
+
+In conclusion, predicting an offender's race using various crime features is possible but may be too biased given the very uneven distribution of crimes amongst different offender races.
+
+\
