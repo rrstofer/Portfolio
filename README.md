@@ -3,12 +3,6 @@
 ---
 ---
 
-### Education
-M.S. - Data Science, University of California, Irvine (Expected _December 2024_)
-B.S. - Applied Mathematics & Statistics and Data Science, University of California, Santa Barbara (_June 2023_)
-
-___
-
 ### Super Resolution of Land Surface Temperature (LST) images 
 (_May 2022 – September 2023_)
 
