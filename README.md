@@ -1,5 +1,8 @@
 # Ryan Stofer's Portfolio
 
+---
+---
+
 ### Education
 M.S. - Data Science, University of California, Irvine (Expected _December 2024_)
 B.S. - Applied Mathematics & Statistics and Data Science, University of California, Santa Barbara (_June 2023_)
@@ -17,7 +20,7 @@ We divided our project into two teams, each focused on a specific aspect of mult
 **Improvements:** If allotted more time, we would have liked to extend our work further by testing our model on more real user data and assessing its performance on both tasks. Furthermore, we could also look into implementing more image artifacts to our simulated data sets to increase the variation in our data.
 
 
-**Technical Skills:** Convolutional Neural Network, Deep Learning
+**Technical Skills:** Convolutional Neural Network, Deep Learning, PyTorch, TensorFlow
 
 **Tools:** Python, CUDA
 
@@ -25,8 +28,27 @@ We divided our project into two teams, each focused on a specific aspect of mult
 
 [![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/Portfolio/blob/main/assets/img/SLAC_Poster.pdf)
 
+[![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)]([https://github.com/rrstofer/Portfolio/blob/main/assets/img/SLAC_Poster.pdf](https://github.com/dermen/resonet))
 
+___
 
-### Capstone: Deep Learning X-ray Diffraction Model (_January 2023 – June 2023_)
+### Super Resolution of Land Surface Temperature (LST) images (_May 2022 – September 2023_)
+
+**Overview:** I led a collaborative research project with a graduate student, where we trained a U-Net-based convolutional neural network (CNN) to improve the resolution of coarse remote sensing data by utilizing high-resolution RGB imagery. To overcome the challenge of acquiring extensive ground truth data for CNN training, we introduced an innovative pre-training procedure. This method involved applying a randomized function to the RGB images, generating synthetic high-resolution data with varying relationships to the RGB bands. This allowed the model to learn from the abundant high-resolution RGB data before specializing in super resolution tasks. Our approach's effectiveness was demonstrated by comparing our deep learning model to a pixel-based statistical downscaling method. By using a deep learning model, we reduce the need for airborne ground truth data, providing a practical solution to enhance the resolution of coarse remote sensing data, especially when research demands exceed current resolution capabilities.
+
+I presented our work at the Fall 2022 American Geophysical Union conference in Chicago.
 
 ![AGU Poster](/assets/img/AGU_Poster.png)
+
+**Improvements:** Given additional time, I would have aimed to introduce increased intricacy into both the randomization function within the pre-training process (such as incorporating non-linear transformations and adding Gaussian noise) and the overall U-Net model (by considering enhancements like the Laplace filter and deeper layers). These modifications could have been explored to further refine our ability to enhance pixel unmixing, particularly at the boundaries of distinct semantic regions.
+
+
+**Technical Skills:** Convolutional Neural Network, Deep Learning, PyTorch, TensorFlow
+
+**Tools:** Python, R
+
+**Team:** Anna Boser, Ryan Stofer
+
+[![Open Poster](https://img.shields.io/badge/View_Poster-PDF-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/Portfolio/blob/main/assets/img/AGU_Poster.pdf)
+
+[![Open Repository](https://img.shields.io/badge/View_Repository-GitHub-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
