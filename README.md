@@ -59,8 +59,8 @@ I presented our work at the Fall 2022 American Geophysical Union conference in C
 
 We ran a variety of models inclduing Random Forest, Naive-Bayes, Boosting, and Logistic Regression in order to classify an offender's race. We created an HTML report that goes over our thought processes and shows line-by-line explanation for EDA, data-processing, and model testing and evaluation.
 
-![HC_1](/assets/img/hate_crime_1.png)
-![HC_2](/assets/img/hate_crime_2.png)
+![HC_1](/assets/img/hate_crime_1.PNG)
+![HC_2](/assets/img/hate_crime_2.PNG)
 
 [![Open Report](https://img.shields.io/badge/HTML-View_Report-green?logo=html5&logoColor=green)](/assets/img/hate_crime_report.html)
 [![Open Rmd](https://img.shields.io/badge/R-View_Report-green?logo=R&logoColor=green
