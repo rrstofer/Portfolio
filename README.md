@@ -27,7 +27,7 @@ We divided our project into two teams, each focused on a specific aspect of mult
 
 **Team:** Aleksander Cichosz, Vardan Martirosyan, Teo Zeng, Ryan Stofer
 
-[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)]([https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf](https://github.com/dermen/resonet))
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/SLAC_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/dermen/resonet)
 
 ___
 
