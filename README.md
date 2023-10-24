@@ -72,5 +72,5 @@ In conclusion, our project demonstrated that predicting an offender's race using
 
 **Team:** Mitchell Rapaport, Ryan Stofer
 
-[![Open Report](https://img.shields.io/badge/HTML-View_Report-green?logo=html5&logoColor=green)](/assets/img/hate_crime_report.html) [![Open Rmd](https://img.shields.io/badge/R-View_Report-green?logo=R&logoColor=green
-)](/assets/img/hate_crime_report.Rmd)
+[![Open Report](https://img.shields.io/badge/HTML-View_Report-green?logo=html5&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/hate_crime_project.html) [![Open Rmd](https://img.shields.io/badge/R-View_Report-green?logo=R&logoColor=green
+)]((https://raw.githubusercontent.com/rrstofer/rrstofer.github.io/main/assets/img/hate_crime_project.Rmd)https://raw.githubusercontent.com/rrstofer/rrstofer.github.io/main/assets/img/hate_crime_project.Rmd)
