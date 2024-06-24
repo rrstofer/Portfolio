@@ -12,8 +12,9 @@ I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Cens
 
 We concentrated on the top five and bottom four states, discovering notable trends in California. Additionally, we performed some geospatial analysis by plotting the data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. To further our analysis, we attempted to use a random forest model to predict linguistic isolation and identify key covariates. Although the model fit poorly, we found that occupation type was a primary factor in determining linguistic isolation.
 
-![Capstone_Poster](/assets/img/State_Ling_Iso.pdf)
-![Capstone_Poster](/assets/img/CA_Ling_Iso.pdf)
+![SoCalRug_Presentation_1](/assets/img/State_Ling_Iso.pdf)
+
+![SoCalRug_Presentation_2](/assets/img/CA_Ling_Iso.pdf)
 
 **Insights:**
 
