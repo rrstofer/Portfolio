@@ -10,8 +10,10 @@
 
 I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Census data to extract meaningful insights. Given the vast amount of data and the limited time frame, we focused on the variable "linguistic isolation." Linguistic isolation is defined as households where no person aged 14 or older speaks only English at home, or no person aged 14 or older who speaks a language other than English at home speaks English "very well." This definition applies to both the U.S. and Puerto Rican censuses as well as the ACS and PRCS. Our goal was to analyze how linguistic isolation trends across different states in the U.S. over the years.
 
-We concentrated on the top five and bottom four states, discovering notable trends in California. Additionally, we compared data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. To further our analysis, we attempted to use a random forest model to predict linguistic isolation and identify key covariates. Although the model fit poorly, we found that occupation type was a primary factor in determining linguistic isolation.
+We concentrated on the top five and bottom four states, discovering notable trends in California. Additionally, we performed some geospatial analysis by plotting the data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. To further our analysis, we attempted to use a random forest model to predict linguistic isolation and identify key covariates. Although the model fit poorly, we found that occupation type was a primary factor in determining linguistic isolation.
 
+![Capstone_Poster](/assets/img/State_Ling_Iso.pdf)
+![Capstone_Poster](/assets/img/CA_Ling_Iso.pdf)
 
 **Insights:**
 
@@ -24,11 +26,11 @@ For future research, a deeper exploration into feature selection and model optim
 
 **Technical Skills:** Data Visualization
 
-**Tools:** R,arrow
+**Tools:** R, arrow
 
 **Team:** Kabir Snell, Peyton Politewicz, Steven Yang, Ryan Stofer
 
-[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/RUG_Hackathon_04-2024.pdf) 
 
 
 
