@@ -3,6 +3,36 @@
 ---
 ---
 
+### 2024 SoCal RUG Hackathon
+(_April 2024_)
+
+**Overview:** 
+
+I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Census data to extract meaningful insights. Given the vast amount of data and the limited time frame, we focused on the variable "linguistic isolation." Linguistic isolation is defined as households where no person aged 14 or older speaks only English at home, or no person aged 14 or older who speaks a language other than English at home speaks English "very well." This definition applies to both the U.S. and Puerto Rican censuses as well as the ACS and PRCS. Our goal was to analyze how linguistic isolation trends across different states in the U.S. over the years.
+
+We concentrated on the top five and bottom four states, discovering notable trends in California. Additionally, we compared data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. To further our analysis, we attempted to use a random forest model to predict linguistic isolation and identify key covariates. Although the model fit poorly, we found that occupation type was a primary factor in determining linguistic isolation.
+
+
+**Insights:**
+
+Despite the constraints of the hackathon, our project provided valuable insights into linguistic isolation trends in the U.S. Our analysis revealed significant regional variations, with California showing the most notable trends. The comparison between 2014 and 2022 data indicated a marked decline in linguistic isolation in specific regions, particularly in the Southeast, Orange County/LA County, and the Bay Area. This trend suggests a potential improvement in English proficiency or demographic shifts in these areas.
+
+Our attempt to predict linguistic isolation using a random forest model, although not highly successful, underscored the importance of occupation type as a key covariate. This insight points to the potential influence of employment sectors and economic opportunities on linguistic isolation.
+
+**Improvements:**
+For future research, a deeper exploration into feature selection and model optimization could enhance the predictive power of our models. Investigating the underlying causes of the drastic decline in linguistic isolation in certain IPUMS areas over the eight-year interval would also be valuable. Applying an interrupted time series analysis could help identify events or policy changes that contributed to this decline, providing a more comprehensive understanding of the factors driving linguistic isolation trends.
+
+**Technical Skills:** Data Visualization
+
+**Tools:** R,arrow
+
+**Team:** Kabir Snell, Peyton Politewicz, Steven Yang, Ryan Stofer
+
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/AGU_Poster.pdf) [![Open Repository](https://img.shields.io/badge/GitHub-View_Repository-green?logo=GitHub&logoColor=green)](https://github.com/ecohydro/lst-super-res)
+
+
+
+
 ### Super Resolution of Land Surface Temperature (LST) images 
 (_May 2022 – September 2023_)
 
