@@ -20,7 +20,7 @@ The user application was developed to provide a user-friendly interface that con
 
 **Technical Skills:** Machine Learning, Logisitic Regression
 
-**Tools:** Python
+**Tools:** Python, React Native
 
 **Team:** Mina Yoon, Aashi Singh, Sophia Zhang, Ryan Stofer
 
