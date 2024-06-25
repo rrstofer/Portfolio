@@ -10,7 +10,7 @@
 
 The predictive model was designed to forecast hypoglycemic events, particularly during sleep. I created a logistic regression model due to its efficiency and effectiveness, given the limited feature set of the data. In the absence of actual patient data, we utilized CGM data from Kaggle and achieved a precision of 93.1% across 50 user data sets. The code was structured for easy deployment within the app, ensuring seamless integration with the device’s functionality.
 
-![Gluco_ML](/assets/img/Model_Figure.png)
+![Gluco_ML](/assets/img/Prediction_Modeling.png)
 
 The user application was developed to provide a user-friendly interface that connects to the device's API. This application allows users to monitor their glucose levels and receive alerts, enhancing their experience and safety when using GlucoGuard.
 
