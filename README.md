@@ -30,7 +30,7 @@ _**Specifics and files are not shared for confidentiality purposes.**_
 
 ---
 
-### 2024 SoCal RUG Hackathon - Analyzing Linguistic Isolation in California
+### 2024 SoCal RUG Hackathon - Linguistic Isolation in California
 (_April 2024_)
 
 **Overview:** I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Census data to extract meaningful insights. Given the vast amount of data and the limited time frame, we focused on the variable "linguistic isolation." Linguistic isolation is defined as households where no person aged 14 or older speaks only English at home, or no person aged 14 or older who speaks a language other than English at home speaks English "very well." This definition applies to both the U.S. and Puerto Rican censuses as well as the ACS and PRCS. Our goal was to analyze how linguistic isolation trends across different states in the U.S. over the years.
