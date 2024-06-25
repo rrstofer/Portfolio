@@ -10,11 +10,11 @@
 
 The predictive model was designed to forecast hypoglycemic events, particularly during sleep. I created a logistic regression model due to its efficiency and effectiveness, given the limited feature set of the data. In the absence of actual patient data, we utilized CGM data from Kaggle and achieved a precision of 93.1% across 50 user data sets. The code was structured for easy deployment within the app, ensuring seamless integration with the device’s functionality.
 
-![Gluco_ML](/assets/img/State_Ling_Iso.pdf)
+![Gluco_ML](/assets/img/Model_Figure.png)
 
 The user application was developed to provide a user-friendly interface that connects to the device's API. This application allows users to monitor their glucose levels and receive alerts, enhancing their experience and safety when using GlucoGuard.
 
-![Gluco_Wireframe](/assets/img/State_Ling_Iso.pdf)
+![Gluco_Wireframe](/assets/img/Glucoguard_Wireframe.png)
 
 **Improvements:** While the model demonstrated promising results with experimental data, testing and retraining the model using actual patient data obtained from the GlucoGuard mouthpiece would enhance its accuracy and reliability. Additionally, incorporating more metadata could enable the development of more complex models, such as a time series model like SARIMA, which could further improve the prediction of hypoglycemic events and provide deeper insights into glucose level trends over time.
 
@@ -25,7 +25,7 @@ The user application was developed to provide a user-friendly interface that con
 **Team:** Mina Yoon, Aashi Singh, Sophia Zhang, Ryan Stofer
 
 _**Specifics and files are not shared for confidentiality purposes.**_
-[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/RUG_Hackathon_04-2024.pdf) 
+[![Open Poster](https://img.shields.io/badge/PPT-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/MADO_Presentation_GlucoGuard.pptx) 
 
 ---
 
