@@ -25,6 +25,7 @@ The user application was developed to provide a user-friendly interface that con
 **Team:** Mina Yoon, Aashi Singh, Sophia Zhang, Ryan Stofer
 
 _**Specifics and files are not shared for confidentiality purposes.**_
+
 [![Open Poster](https://img.shields.io/badge/PPT-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/MADO_Presentation_GlucoGuard.pptx) 
 
 ---
