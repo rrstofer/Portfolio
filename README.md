@@ -3,12 +3,36 @@
 ---
 ---
 
-### 2024 SoCal RUG Hackathon
+### IMD Solutions Inc. - GlucoGuard
+(_Jan 2024 - June 2024_)
+
+**Overview:** I collaborated with a team to develop a predictive model and an application for IMD solutions Inc.'s newest product, GlucoGuard, aimed at individuals with type 1 diabetes. GlucoGuard continuously monitors glucose levels and administers glucose during nocturnal hypoglycemia to prevent low blood sugar events during sleep. The project included two key components: a predictive model and a user application.
+
+The predictive model was designed to forecast hypoglycemic events, particularly during sleep. I created a logistic regression model due to its efficiency and effectiveness, given the limited feature set of the data. In the absence of actual patient data, we utilized CGM data from Kaggle and achieved a precision of 93.1% across 50 user data sets. The code was structured for easy deployment within the app, ensuring seamless integration with the device’s functionality.
+
+![Gluco_ML](/assets/img/State_Ling_Iso.pdf)
+
+The user application was developed to provide a user-friendly interface that connects to the device's API. This application allows users to monitor their glucose levels and receive alerts, enhancing their experience and safety when using GlucoGuard.
+
+![Gluco_Wireframe](/assets/img/State_Ling_Iso.pdf)
+
+**Improvements:** While the model demonstrated promising results with experimental data, testing and retraining the model using actual patient data obtained from the GlucoGuard mouthpiece would enhance its accuracy and reliability. Additionally, incorporating more metadata could enable the development of more complex models, such as a time series model like SARIMA, which could further improve the prediction of hypoglycemic events and provide deeper insights into glucose level trends over time.
+
+**Technical Skills:** Machine Learning, Logisitic Regression
+
+**Tools:** Python
+
+**Team:** Mina Yoon, Aashi Singh, Sophia Zhang, Ryan Stofer
+
+_**Specifics and files are not shared for confidentiality purposes.**_
+[![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/RUG_Hackathon_04-2024.pdf) 
+
+---
+
+### 2024 SoCal RUG Hackathon - Analyzing Linguistic Isolation in California
 (_April 2024_)
 
-**Overview:** 
-
-I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Census data to extract meaningful insights. Given the vast amount of data and the limited time frame, we focused on the variable "linguistic isolation." Linguistic isolation is defined as households where no person aged 14 or older speaks only English at home, or no person aged 14 or older who speaks a language other than English at home speaks English "very well." This definition applies to both the U.S. and Puerto Rican censuses as well as the ACS and PRCS. Our goal was to analyze how linguistic isolation trends across different states in the U.S. over the years.
+**Overview:** I participated in a 36-hour hackathon where my team and I analyzed IPUMS US Census data to extract meaningful insights. Given the vast amount of data and the limited time frame, we focused on the variable "linguistic isolation." Linguistic isolation is defined as households where no person aged 14 or older speaks only English at home, or no person aged 14 or older who speaks a language other than English at home speaks English "very well." This definition applies to both the U.S. and Puerto Rican censuses as well as the ACS and PRCS. Our goal was to analyze how linguistic isolation trends across different states in the U.S. over the years.
 
 We concentrated on the top five and bottom four states, discovering notable trends in California. Additionally, we performed some geospatial analysis by plotting the data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. To further our analysis, we attempted to use a random forest model to predict linguistic isolation and identify key covariates. Although the model fit poorly, we found that occupation type was a primary factor in determining linguistic isolation.
 
@@ -33,8 +57,7 @@ For future research, a deeper exploration into feature selection and model optim
 
 [![Open Poster](https://img.shields.io/badge/PDF-View_Poster-green?logo=googledocs&logoColor=green)](https://github.com/rrstofer/rrstofer.github.io/blob/main/assets/img/RUG_Hackathon_04-2024.pdf) 
 
-
-
+---
 
 ### Super Resolution of Land Surface Temperature (LST) images 
 (_May 2022 – September 2023_)
@@ -60,7 +83,7 @@ I presented our work at the Fall 2022 American Geophysical Union conference in C
 
 ___
 
-### Capstone: Deep Learning X-ray Diffraction Model 
+### UCSB Capstone - Deep Learning X-ray Diffraction Model 
 (_January 2023 – June 2023_)
 
 **Overview:** As part of the UCSB Capstone program, my group and I partnered with the Stanford Synchrotron Radiation Lightsource (SLAC SSRL), a division of SLAC National Accelerator Laboratory, to research and develop a deep learning model capable of classifying the resolution of individual X-ray diffraction shots.
