@@ -37,9 +37,9 @@ _**Specifics and files are not shared for confidentiality purposes.**_
 
 We concentrated on the top five and bottom four states, discovering the most notable trends in California. Additionally, we performed some geospatial analysis by plotting the data from 2014 and 2022 across different IPUMS regions, highlighting a significant decline in linguistic isolation in the Southeast, Orange County/LA County, and the Bay Area. 
 
-![SoCalRug_Presentation_1](/assets/img/State_Ling_Iso.pdf)
+![SoCalRug_Presentation_1](/assets/img/State_Ling_Iso.png)
 
-![SoCalRug_Presentation_2](/assets/img/CA_Ling_Iso.pdf)
+![SoCalRug_Presentation_2](/assets/img/CA_Ling_Iso.png)
 
 Despite the constraints of the hackathon, our project provided valuable insights into linguistic isolation trends in the U.S. Our analysis revealed significant regional variations, with California showing the most notable trends. The comparison between 2014 and 2022 data indicated a marked decline in linguistic isolation in specific regions, particularly in the Southeast, Orange County/LA County, and the Bay Area. This trend suggests a potential improvement in English proficiency or demographic shifts in these areas.
 
